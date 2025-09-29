@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Grocery Ordering System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shopping-cart me-2"></i>Grocery Store
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link auth-only" href="/products" style="display:none;">Products</a>
+                <a class="nav-link active auth-only" href="/cart" style="display:none;">
+                    <i class="fas fa-shopping-cart"></i> Cart
+                </a>
+                <a class="nav-link auth-only" href="/orders" style="display:none;">Orders</a>
+                <a class="nav-link guest-only" href="/login">Login</a>
+                <a class="nav-link auth-only" href="#" id="logoutLink" style="display:none;">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">Shopping Cart</h1>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- Cart Items -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Cart Items</h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${cartItems != null and !cartItems.empty}">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Price</th>
+                                                    <th>Quantity</th>
+                                                    <th>Total</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="item : ${cartItems}">
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <img th:src="${item.product.imageUrl}" class="me-3" style="width: 60px; height: 60px; object-fit: cover;" th:alt="${item.product.name}">
+                                                            <div>
+                                                                <h6 class="mb-0" th:text="${item.product.name}">Product Name</h6>
+                                                                <small class="text-muted" th:text="'$' + ${item.unitPrice}">$0.00</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td th:text="'$' + ${item.unitPrice}">$0.00</td>
+                                                    <td>
+                                                        <div class="input-group" style="width: 120px;">
+                                                            <button class="btn btn-outline-secondary btn-sm" type="button" th:onclick="'updateQuantity(' + ${item.id} + ', ' + (${item.quantity} - 1) + ')'">-</button>
+                                                            <input type="number" class="form-control form-control-sm text-center" th:value="${item.quantity}" min="1" readonly>
+                                                            <button class="btn btn-outline-secondary btn-sm" type="button" th:onclick="'updateQuantity(' + ${item.id} + ', ' + (${item.quantity} + 1) + ')'">+</button>
+                                                        </div>
+                                                    </td>
+                                                    <td th:text="'$' + ${item.totalPrice}">$0.00</td>
+                                                    <td>
+                                                        <button class="btn btn-outline-danger btn-sm" th:onclick="'removeFromCart(' + ${item.id} + ')'">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div th:if="${cartItems == null or cartItems.empty}" class="text-center py-4">
+                                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                    <h5>Your cart is empty</h5>
+                                    <p class="text-muted">Add some products to get started!</p>
+                                    <a href="/products" class="btn btn-primary">Start Shopping</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <!-- Order Summary -->
+                        <div class="card" th:if="${cartItems != null and !cartItems.empty}">
+                            <div class="card-header">
+                                <h5 class="mb-0">Order Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span th:text="'$' + ${#numbers.formatDecimal(subtotal, 1, 2)}">$0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tax:</span>
+                                    <span th:text="'$' + ${#numbers.formatDecimal(tax, 1, 2)}">$0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Delivery:</span>
+                                    <span th:text="delivery == 0 ? 'FREE' : '$' + #numbers.formatDecimal(delivery, 1, 2)">$0.00</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <strong>Total:</strong>
+                                    <strong th:text="'$' + ${#numbers.formatDecimal(total, 1, 2)}">$0.00</strong>
+                                </div>
+                                <button class="btn btn-success w-100 mb-2">
+                                    <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+                                </button>
+                                <a href="/products" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function isAuthenticated() {
+            try {
+                const data = localStorage.getItem('authUser');
+                if (!data) return false;
+                const parsed = JSON.parse(data);
+                return !!parsed && !!parsed.email;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function applyAuthVisibility() {
+            const authed = isAuthenticated();
+            document.querySelectorAll('.auth-only').forEach(el => {
+                el.style.display = authed ? '' : 'none';
+            });
+            document.querySelectorAll('.guest-only').forEach(el => {
+                el.style.display = authed ? 'none' : '';
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('authUser');
+            localStorage.removeItem('authToken');
+            applyAuthVisibility();
+            window.location.href = '/';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyAuthVisibility();
+            const logoutLink = document.getElementById('logoutLink');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logout();
+                });
+            }
+        });
+
+        function authHeaders() {
+            const token = localStorage.getItem('authToken');
+            return token ? { 'Authorization': 'Bearer ' + token } : {};
+        }
+
+        function updateQuantity(cartItemId, newQuantity) {
+            if (newQuantity < 1) {
+                removeFromCart(cartItemId);
+                return;
+            }
+            
+            fetch('/cart/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    ...authHeaders(),
+                },
+                body: 'cartItemId=' + cartItemId + '&quantity=' + newQuantity
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data === 'success') {
+                    location.reload(); // Refresh the page to show updated totals
+                } else {
+                    alert('Error updating cart: ' + data);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating cart');
+            });
+        }
+        
+        function removeFromCart(cartItemId) {
+            if (confirm('Are you sure you want to remove this item from your cart?')) {
+                fetch('/cart/remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        ...authHeaders(),
+                    },
+                    body: 'cartItemId=' + cartItemId
+                })
+                .then(response => response.text())
+                .then(data => {
+                    if (data === 'success') {
+                        location.reload(); // Refresh the page
+                    } else {
+                        alert('Error removing item: ' + data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error removing item');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
