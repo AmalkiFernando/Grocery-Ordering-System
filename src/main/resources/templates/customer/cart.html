@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+</head>
+<body class="section">
+<div class="container">
+    <div class="is-flex is-justify-content-space-between is-align-items-center">
+        <h1 class="title">Shopping Cart</h1>
+        <div class="buttons">
+            <a class="button is-light" th:href="@{/customer}">Continue Shopping</a>
+            <form method="post" action="/logout"><button class="button is-light" type="submit">Log out</button></form>
+        </div>
+    </div>
+
+    <div class="columns">
+        <div class="column is-two-thirds">
+            <div class="box" th:if="${#lists.isEmpty(cart.items)}">Your cart is empty.</div>
+            <div class="box" th:each="item : ${cart.items}">
+                <div class="columns is-vcentered">
+                    <div class="column is-narrow">
+                        <figure class="image is-96x96">
+                            <img th:src="${item.product.imageUrl} != null ? ${item.product.imageUrl} : @{'https://picsum.photos/seed/' + ${item.product.name} + '/96/96'}">
+                        </figure>
+                    </div>
+                    <div class="column">
+                        <p class="title is-6" th:text="${item.product.name}"></p>
+                        <p class="subtitle is-6" th:text="${item.unitPrice}"></p>
+                    </div>
+                    <div class="column is-narrow">
+                        <form th:action="@{'/cart/item/' + ${item.id} + '/dec'}" method="post" style="display:inline">
+                            <button class="button" type="submit">-</button>
+                        </form>
+                        <span class="mx-3" th:text="${item.quantity}"></span>
+                        <form th:action="@{'/cart/item/' + ${item.id} + '/inc'}" method="post" style="display:inline">
+                            <button class="button" type="submit">+</button>
+                        </form>
+                    </div>
+                    <div class="column is-narrow">
+                        <strong th:text="${item.lineTotal}"></strong>
+                    </div>
+                    <div class="column is-narrow">
+                        <form th:action="@{'/cart/item/' + ${item.id} + '/delete'}" method="post">
+                            <button class="button is-danger is-light" type="submit">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="box">
+                <h2 class="title is-5">Order Summary</h2>
+                <div class="is-flex is-justify-content-space-between">
+                    <span>Subtotal</span>
+                    <span th:text="${cart.subtotal}"></span>
+                </div>
+                <div class="is-flex is-justify-content-space-between">
+                    <span>Shipping</span>
+                    <span>5.99</span>
+                </div>
+                <div class="is-flex is-justify-content-space-between">
+                    <span>Tax</span>
+                    <span th:text="${#numbers.formatDecimal(cart.subtotal * 0.08, 1, 'COMMA', 2, 'POINT')}"></span>
+                </div>
+                <hr>
+                <div class="is-flex is-justify-content-space-between">
+                    <strong>Total</strong>
+                    <strong th:text="${cart.subtotal + 5.99}"></strong>
+                </div>
+                <a class="button is-primary is-fullwidth mt-3" th:href="@{/checkout}">Proceed to Checkout</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Submit Feedback</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <style>
+        :root {
+            --bg-1: #ecfdf5;  /* emerald-50 */
+            --bg-2: #d1fae5;  /* emerald-100 */
+            --bg-3: #e0f2fe;  /* sky-100 */
+            --text-strong: #052e16; /* emerald-950 */
+            --text-soft: #1f2937;   /* gray-800 */
+            --accent-1: #059669;    /* emerald-600 */
+            --accent-2: #10b981;    /* emerald-500 */
+        }
+        body { min-height:100vh; background: linear-gradient(120deg, var(--bg-1), var(--bg-2), var(--bg-3)); background-size:300% 300%; animation: bg 20s ease infinite; }
+        @keyframes bg { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        .hero-banner { background: linear-gradient(135deg, rgba(5,150,105,.12), rgba(16,185,129,.08)); border: 1px solid rgba(16,185,129,.2); border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(2,6,23,.08); }
+        .form-card { border: 1px solid rgba(16,185,129,.18); border-radius: 14px; box-shadow: 0 10px 22px rgba(2,6,23,.08); }
+        .button.is-accent { background-image: linear-gradient(135deg,var(--accent-1),var(--accent-2)); color:#fff; border:none; }
+        .rating-input { display: flex; gap: 8px; margin: 10px 0; }
+        .star { font-size: 2rem; cursor: pointer; color: #d1d5db; transition: color 0.2s; }
+        .star:hover, .star.active { color: #fbbf24; }
+        .star.selected { color: #f59e0b; }
+    </style>
+</head>
+<body class="section">
+<div class="container">
+    <div class="is-flex is-justify-content-space-between mb-3">
+        <a th:href="@{/feedback/product/{id}(id=${product.id})}" class="button is-light">← Back to Reviews</a>
+        <form method="post" action="/logout">
+            <button class="button is-light" type="submit">Log out</button>
+        </form>
+    </div>
+
+    <div class="hero-banner mb-5" th:if="${product}">
+        <h1 class="title is-4" style="color:var(--text-strong)">Write a Review</h1>
+        <p class="subtitle is-6" style="color:var(--text-soft)" th:text="'Share your experience with ' + ${product.name}">Share your experience with this product</p>
+    </div>
+
+    <div class="columns is-centered">
+        <div class="column is-half">
+            <div class="card form-card">
+                <div class="card-content">
+                    <form th:action="@{/feedback/submit}" method="post">
+                        <input type="hidden" name="productId" th:value="${product.id}">
+                        
+                        <div class="field">
+                            <label class="label">Your Name</label>
+                            <div class="control">
+                                <input class="input" type="text" name="customerName" required maxlength="100">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Your Email</label>
+                            <div class="control">
+                                <input class="input" type="email" name="customerEmail" required maxlength="255">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Rating</label>
+                            <div class="rating-input">
+                                <span class="star" data-rating="1">☆</span>
+                                <span class="star" data-rating="2">☆</span>
+                                <span class="star" data-rating="3">☆</span>
+                                <span class="star" data-rating="4">☆</span>
+                                <span class="star" data-rating="5">☆</span>
+                            </div>
+                            <input type="hidden" name="rating" id="ratingValue" required>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Your Review</label>
+                            <div class="control">
+                                <textarea class="textarea" name="reviewContent" placeholder="Share your thoughts about this product..." required maxlength="1000"></textarea>
+                            </div>
+                            <p class="help">Maximum 1000 characters</p>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-accent is-fullwidth" type="submit">Submit Review</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Star rating functionality
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.getElementById('ratingValue');
+    let selectedRating = 0;
+
+    stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+            selectedRating = index + 1;
+            ratingInput.value = selectedRating;
+            updateStars();
+        });
+
+        star.addEventListener('mouseenter', () => {
+            highlightStars(index + 1);
+        });
+    });
+
+    document.querySelector('.rating-input').addEventListener('mouseleave', () => {
+        updateStars();
+    });
+
+    function highlightStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.textContent = '★';
+                star.classList.add('active');
+            } else {
+                star.textContent = '☆';
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    function updateStars() {
+        stars.forEach((star, index) => {
+            if (index < selectedRating) {
+                star.textContent = '★';
+                star.classList.add('selected');
+            } else {
+                star.textContent = '☆';
+                star.classList.remove('selected');
+            }
+        });
+    }
+
+    // Character counter for textarea
+    const textarea = document.querySelector('textarea[name="reviewContent"]');
+    const helpText = document.querySelector('.help');
+    
+    textarea.addEventListener('input', () => {
+        const remaining = 1000 - textarea.value.length;
+        helpText.textContent = `${remaining} characters remaining`;
+        
+        if (remaining < 50) {
+            helpText.style.color = '#ef4444';
+        } else if (remaining < 100) {
+            helpText.style.color = '#f59e0b';
+        } else {
+            helpText.style.color = '#6b7280';
+        }
+    });
+</script>
+</body>
+</html>

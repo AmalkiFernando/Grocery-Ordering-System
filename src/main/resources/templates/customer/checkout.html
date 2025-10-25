@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Checkout</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+</head>
+<body class="section">
+<div class="container">
+    <h1 class="title">Checkout</h1>
+    <div class="columns">
+        <div class="column is-two-thirds">
+            <form method="post" th:action="@{/checkout/confirm}">
+                <!-- Add error message display -->
+                <div class="notification is-danger" th:if="${error}" th:text="${error}"></div>
+                
+                <div class="field">
+                    <label class="label">Full Name</label>
+                    <div class="control">
+                        <input class="input" type="text" name="fullName" required/>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Address</label>
+                    <div class="control">
+                        <input class="input" type="text" name="address" required/>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">City</label>
+                    <div class="control">
+                        <input class="input" type="text" name="city" required/>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Card Number</label>
+                    <div class="control">
+                        <input class="input" type="text" name="cardNumber" pattern="[0-9]{16}" 
+                               title="Please enter a valid 16-digit card number" required/>
+                    </div>
+                </div>
+                <button class="button is-primary" type="submit">Place Order</button>
+                <a class="button" th:href="@{/cart}">Back to Cart</a>
+            </form>
+        </div>
+        <div class="column">
+            <div class="box">
+                <h2 class="title is-5">Order Summary</h2>
+                <div class="is-flex is-justify-content-space-between">
+                    <span>Subtotal</span>
+                    <span th:text="${cart.subtotal}"></span>
+                </div>
+                <div class="is-flex is-justify-content-space-between">
+                    <span>Shipping</span>
+                    <span>5.99</span>
+                </div>
+                <hr>
+                <div class="is-flex is-justify-content-space-between">
+                    <strong>Total</strong>
+                    <strong th:text="${cart.subtotal + 5.99}"></strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

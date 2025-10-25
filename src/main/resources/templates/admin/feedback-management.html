@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Feedback Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <style>
+        :root {
+            --bg-1: #ecfdf5;  /* emerald-50 */
+            --bg-2: #d1fae5;  /* emerald-100 */
+            --bg-3: #e0f2fe;  /* sky-100 */
+            --text-strong: #052e16; /* emerald-950 */
+            --text-soft: #1f2937;   /* gray-800 */
+            --accent-1: #059669;    /* emerald-600 */
+            --accent-2: #10b981;    /* emerald-500 */
+        }
+        body { min-height:100vh; background: linear-gradient(120deg, var(--bg-1), var(--bg-2), var(--bg-3)); background-size:300% 300%; animation: bg 20s ease infinite; }
+        @keyframes bg { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        .hero-banner { background: linear-gradient(135deg, rgba(5,150,105,.12), rgba(16,185,129,.08)); border: 1px solid rgba(16,185,129,.2); border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(2,6,23,.08); }
+        .feedback-card { border: 1px solid rgba(16,185,129,.18); border-radius: 14px; box-shadow: 0 10px 22px rgba(2,6,23,.08); margin-bottom: 16px; }
+        .rating-stars { color: #fbbf24; font-size: 1.2rem; }
+        .button.is-accent { background-image: linear-gradient(135deg,var(--accent-1),var(--accent-2)); color:#fff; border:none; }
+        .button.is-danger { background-color: #ef4444; color: white; }
+        .button.is-warning { background-color: #f59e0b; color: white; }
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+        .status-active { background-color: #d1fae5; color: #065f46; }
+        .status-inactive { background-color: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body class="section">
+<div class="container">
+    <div class="is-flex is-justify-content-space-between mb-3">
+        <a href="/admin/products" class="button is-light">← Back to Products</a>
+        <form method="post" action="/logout">
+            <button class="button is-light" type="submit">Log out</button>
+        </form>
+    </div>
+
+    <div class="hero-banner mb-5">
+        <h1 class="title is-4" style="color:var(--text-strong)">Feedback Management</h1>
+        <p class="subtitle is-6" style="color:var(--text-soft)">Manage customer reviews and feedback</p>
+        <div class="buttons">
+            <a href="/feedback/admin/all" class="button is-accent">All Feedback</a>
+            <a href="/feedback/admin/inactive" class="button is-accent is-light">Inactive Feedback</a>
+        </div>
+    </div>
+
+    <!-- Feedback List -->
+    <div th:if="${feedbacks != null and !feedbacks.empty}">
+        <div th:each="feedback : ${feedbacks}">
+            <div class="card feedback-card">
+                <div class="card-content">
+                    <div class="media">
+                        <div class="media-content">
+                            <p class="title is-6" th:text="${feedback.customerName}">Customer Name</p>
+                            <p class="subtitle is-7" th:text="${feedback.customerEmail}">customer@email.com</p>
+                            <p class="is-size-7" th:text="'Product: ' + ${feedback.product.name}">Product: Product Name</p>
+                        </div>
+                        <div class="media-right">
+                            <div class="rating-stars" th:text="${feedback.ratingStars}">★★★★☆</div>
+                            <p class="is-size-7" th:text="${#temporals.format(feedback.createdAt, 'MMM dd, yyyy HH:mm')}">Jan 15, 2024 10:30</p>
+                            <span class="status-badge" th:classappend="${feedback.isActive} ? 'status-active' : 'status-inactive'" 
+                                  th:text="${feedback.isActive} ? 'Active' : 'Inactive'">Active</span>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <p th:text="${feedback.reviewContent}">This is a great product! I highly recommend it.</p>
+                    </div>
+                    <div class="buttons">
+                        <form th:action="@{/feedback/admin/toggle/{id}(id=${feedback.id})}" method="post" style="display: inline;">
+                            <button class="button is-small is-danger" style="background-color: #991b1b;"
+                                    type="submit">Deactivate</button>
+                            <button class="button is-small is-danger" style="background-color: #065f46;"
+                                    type="submit">Activate</button>
+                        </form>
+                        <form th:if="${!feedback.isActive}" th:action="@{/feedback/admin/restore/{id}(id=${feedback.id})}" method="post" style="display: inline;">
+                            <button class="button is-accent is-small" type="submit">Restore</button>
+                        </form>
+                        <form th:if="${!feedback.isActive}" th:action="@{/feedback/admin/permanent-delete/{id}(id=${feedback.id})}" method="post" style="display: inline;">
+                            <button class="button is-danger is-small" type="submit" onclick="return confirm('Are you sure you want to permanently delete this feedback?')">Delete Permanently</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No feedback message -->
+    <div th:if="${feedbacks == null or feedbacks.empty}" class="has-text-centered">
+        <div class="box">
+            <p class="title is-5">No feedback found</p>
+            <p class="subtitle is-6">There are no feedback entries to display.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
