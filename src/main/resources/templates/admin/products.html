@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Products</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+</head>
+<body class="section">
+<div class="container">
+    <div class="is-flex is-justify-content-space-between is-align-items-center">
+        <h1 class="title">Products</h1>
+        <div class="buttons">
+            <form method="post" action="/logout">
+                <button class="button is-light" type="submit">Log out</button>
+            </form>
+            <a class="button" th:href="@{/admin}">Back</a>
+        </div>
+    </div>
+
+    <div class="tabs is-toggle is-fullwidth">
+        <ul>
+            <li class="is-active"><a>Products</a></li>
+            <li><a th:href="@{/admin/inventory}">Inventory</a></li>
+            <li><a th:href="@{/admin/suppliers}">Suppliers</a></li>
+            <li><a th:href="@{/feedback/admin/all}">Feedback</a></li>
+            <li><a th:href="@{/rating/admin/all}">Ratings</a></li>
+            <li><a th:href="@{/reports/admin}">Reports</a></li>
+        </ul>
+    </div>
+
+    <table class="table is-fullwidth is-striped is-hoverable">
+        <thead>
+        <tr>
+            <th>Image</th>
+            <th>SKU</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Low Threshold</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${products}">
+            <td>
+                <figure class="image is-64x64">
+                    <img th:src="${p.imageUrl} != null ? ${p.imageUrl} : @{'https://source.unsplash.com/128x128/?grocery,' + ${p.name}}" th:alt="${p.name}"
+                         th:attr="onerror=|this.onerror=null;this.src='https://picsum.photos/seed/'+encodeURIComponent(this.alt)+'/128/128'|">
+                </figure>
+            </td>
+            <td th:text="${p.sku}"></td>
+            <td th:text="${p.name}"></td>
+            <td th:text="${p.price}"></td>
+            <td th:text="${p.quantityInStock}"></td>
+            <td th:text="${p.lowStockThreshold}"></td>
+            <td>
+                <div class="buttons">
+                    <a class="button is-small is-info" th:href="@{/feedback/product/{id}(id=${p.id})}">Reviews</a>
+                    <a class="button is-small is-info" th:href="@{/rating/product/{id}(id=${p.id})}">Ratings</a>
+                    <form th:action="@{'/admin/products/' + ${p.id} + '/delete'}" method="post" style="display: inline;">
+                        <button class="button is-small is-danger" style="background-color: #10b981;"
+                                type="submit">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2 class="subtitle">Add Product</h2>
+    <form method="post" th:object="${newProduct}">
+        <div class="columns is-multiline">
+            <div class="column">
+                <input class="input" placeholder="SKU" th:field="*{sku}" required />
+            </div>
+            <div class="column">
+                <input class="input" placeholder="Name" th:field="*{name}" required />
+            </div>
+            <div class="column">
+                <input class="input" placeholder="Price" type="number" step="0.01" th:field="*{price}" required />
+            </div>
+            <div class="column">
+                <input class="input" placeholder="Qty" type="number" th:field="*{quantityInStock}" required />
+            </div>
+            <div class="column">
+                <input class="input" placeholder="Low Threshold" type="number" th:field="*{lowStockThreshold}" />
+            </div>
+            <div class="column is-full">
+                <input class="input" placeholder="Image URL (optional)" th:field="*{imageUrl}" />
+            </div>
+            <div class="column is-narrow">
+                <button class="button is-primary" style="background-color: #075985;"
+                        type="submit">Add</button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>
+
+

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer Sign Up</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <style>
+        :root {
+            --bg-a: #ecfdf5;   /* emerald-50 */
+            --bg-b: #d1fae5;   /* emerald-100 */
+            --bg-c: #e0f2fe;   /* sky-100 */
+            --text-strong: #052e16; /* emerald-950 */
+            --text-soft: #1f2937;   /* gray-800 */
+            --accent-1: #059669; /* emerald-600 */
+            --accent-2: #10b981; /* emerald-500 */
+        }
+        body { min-height: 100vh; display:flex; align-items:center; justify-content:center; padding:24px; background: linear-gradient(120deg, var(--bg-a), var(--bg-b), var(--bg-c)); background-size: 300% 300%; animation: bg 20s ease infinite; }
+        @keyframes bg { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        .card { width:100%; max-width:520px; background: rgba(255,255,255,0.95); border-radius:14px; box-shadow:0 12px 40px rgba(2,6,23,.18); border: 1px solid rgba(16,185,129,.2); }
+        h1.title { color: var(--text-strong); }
+        .subtitle { color: var(--text-soft); }
+        label.label { color: var(--text-strong); }
+        input.input { background: #ffffff; color: var(--text-soft); border-color: #c7f0df; }
+        input.input:focus { border-color: var(--accent-2); box-shadow: 0 0 0 0.125em rgba(16,185,129,.25); }
+        .button.is-gradient { background-image: linear-gradient(135deg,var(--accent-1),var(--accent-2)); color:#fff; border:none; }
+        .button.is-gradient:hover { filter: brightness(1.05); }
+        .help.is-danger { margin-top: 4px; }
+        a.back { color:#065f46; }
+    </style>
+</head>
+<body>
+<div class="card p-6">
+    <h1 class="title is-4 has-text-centered">Create Customer Account</h1>
+    <p class="subtitle is-6 has-text-centered">Sign up to access your customer dashboard.</p>
+
+    <form method="post" action="/signup">
+        <div class="field">
+            <label class="label">Username</label>
+            <div class="control"><input class="input" type="text" name="username" placeholder="yourname" required /></div>
+        </div>
+        <div class="field">
+            <label class="label">Password</label>
+            <div class="control"><input class="input" type="password" name="password" placeholder="choose a password" required /></div>
+        </div>
+        <div class="field">
+            <label class="label">Confirm Password</label>
+            <div class="control"><input class="input" type="password" name="confirmPassword" placeholder="retype password" required /></div>
+        </div>
+        <div class="field">
+            <div class="control">
+                <button class="button is-gradient" type="submit">Sign up</button>
+                <a class="button is-light" href="/login">Back to sign in</a>
+            </div>
+        </div>
+        <p class="help is-danger">[[${error}]]</p>
+    </form>
+</div>
+</body>
+</html>
+
+
