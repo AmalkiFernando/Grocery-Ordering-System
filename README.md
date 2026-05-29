@@ -1,0 +1,1 @@
+Developed a secure RESTful backend for an Online Grocery Ordering System using Java, Spring Boot, MySQL, Hibernate, and Spring Security. Implemented user authentication, product management, shopping cart, and order processing features while applying layered architecture and OOP principles for scalable and maintainable development.
